@@ -1,0 +1,5 @@
+aiofiles
+httpx[http2]
+tqdm
+pillow
+tenacity

@@ -5,7 +5,8 @@ const key = CryptoJS.enc.Utf8.parse("1234123412ABCDEF");
 const iv = CryptoJS.enc.Utf8.parse("ABCDEF1234123412");
 const path = 'https://jc.pep.com.cn/js/chunk-a4502b30.d47163c2.js.map';
 let str = '';
-https.get(path, (res) => {
+const cookie = 'acw_sc__v3=example'; // 请根据实际情况设置cookie
+https.get(path, { headers: { Cookie: cookie } }, (res) => {
     const filePath = path.split('/').pop();
     const writeStream = fs.createWriteStream(filePath!);
     res.pipe(writeStream);

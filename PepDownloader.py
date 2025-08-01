@@ -191,7 +191,7 @@ class PepDownloader:
             limits=httpx.Limits(max_connections=100, max_keepalive_connections=20),
             http2=True
         ) as client:
-            client.cookies.set("acw_sc__v3","688856b50fd4f016824d8e516aeef39531cc5e94")# 请根据实际情况设置cookie
+            client.cookies.set("acw_sc__v3","example")# 请根据实际情况设置cookie
             # 获取书籍元数据
             await self.get_book_info(client)
             

@@ -2,7 +2,6 @@ import asyncio
 import httpx
 import os
 import json
-import img2pdf
 import aiofiles
 from tqdm.asyncio import tqdm_asyncio
 from tenacity import retry, stop_after_attempt, wait_exponential
@@ -18,9 +17,9 @@ class BookInfo:
 
 class PepDownloader:
     def __init__(self, ids: list[int], output_folder: str = 'output', 
-                 max_concurrent_books: int = 3, max_concurrent_pages: int = 10):
+                 max_concurrent_books: int = 3, max_concurrent_pages: int = 10, acw_sc__v3: str = "example"):
         self.books = []
-        self.config = self.Config(output_folder)
+        self.config = self.Config(output_folder, acw_sc__v3)
         self.max_concurrent_books = max_concurrent_books
         self.max_concurrent_pages = max_concurrent_pages
         
@@ -28,10 +27,11 @@ class PepDownloader:
             self.books.append(BookInfo(id, '', 0))
 
     class Config:
-        def __init__(self, output_folder: str):
+        def __init__(self, output_folder: str, acw_sc__v3: str = "example"):
             self.output_folder = output_folder
             self.temp_folder = os.path.join(output_folder, "temp")
             self.pdf_folder = os.path.join(output_folder, "pdfs")
+            self.acw_sc__v3 = acw_sc__v3
             os.makedirs(self.temp_folder, exist_ok=True)
             os.makedirs(self.pdf_folder, exist_ok=True)
     
@@ -149,16 +149,6 @@ class PepDownloader:
         if not image_files:
             print(f"未找到 {book.name} 的图片文件")
             return
-        
-        # 使用img2pdf创建PDF
-        # try:
-        #     with open(pdf_path, "wb") as pdf_file:
-        #         pdf_file.write(img2pdf.convert(image_files))
-        #     print(f"已创建PDF: {pdf_path}")
-        # except Exception as e:
-        #     print(f"创建PDF失败 {book.name}: {e}")
-
-        # 使用PIL创建PDF
         try:
             images = [Image.open(img) for img in image_files]
             if images:
@@ -191,7 +181,7 @@ class PepDownloader:
             limits=httpx.Limits(max_connections=100, max_keepalive_connections=20),
             http2=True
         ) as client:
-            client.cookies.set("acw_sc__v3","example")# 请根据实际情况设置cookie
+            client.cookies.set("acw_sc__v3",self.config.acw_sc__v3)
             # 获取书籍元数据
             await self.get_book_info(client)
             
@@ -239,8 +229,9 @@ async def main():
     downloader = PepDownloader(
         ids=book_ids,
         output_folder="教材",
-        max_concurrent_books=6,    # 同时下载6本书
-        max_concurrent_pages=20      # 每本书同时下载20页
+        max_concurrent_books=3,    # 同时下载3本书
+        max_concurrent_pages=40,      # 每本书同时下载40页
+        acw_sc__v3="example"         # 请根据实际情况设置cookie
     )
     
     # 开始下载
